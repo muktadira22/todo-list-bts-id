@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -19,9 +19,9 @@ function Register() {
     });
 
     const initialValues: IUser = {
-        username: "string",
-        email: "string@gmail.com",
-        password: "string",
+        username: "",
+        email: "",
+        password: "",
     };
 
     const validationSchema = Yup.object().shape({
