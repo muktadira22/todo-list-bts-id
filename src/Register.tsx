@@ -1,5 +1,58 @@
+import React, { useState } from "react"
 import { Link } from "react-router-dom";
+import { Formik, Field, Form, ErrorMessage } from "formik";
+import * as Yup from "yup";
+
+import { useNavigate } from "react-router-dom";
+
+import IUser from "./types/user.type";
+import { register } from "./services/auth.service";
+import { IResponse } from "./types/http.type";
+
 function Register() {
+    const navigate = useNavigate()
+    const [response, setResponse] = useState<IResponse>({
+        statusCode: 0,
+        message: "",
+        errorMessage: null,
+        data: null,
+    });
+
+    const initialValues: IUser = {
+        username: "string",
+        email: "string@gmail.com",
+        password: "string",
+    };
+
+    const validationSchema = Yup.object().shape({
+        username: Yup.string()
+            .required("This field is required!"),
+        email: Yup.string()
+            .email("This is not a valid email.")
+            .required("This field is required!"),
+        password: Yup.string()
+            .required("This field is required!"),
+    });
+
+
+    const handleRegister = (formValue: IUser) => {
+        const { username, email, password } = formValue;
+        register({
+            username,
+            email,
+            password,
+        }).then(
+            () => {
+                navigate("/login")
+            },
+            (error) => {
+                const res: IResponse = error.response.data
+                setResponse(res)
+            }
+        );
+    };
+
+
     return (
         <>
             <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -11,64 +64,94 @@ function Register() {
 
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
                     <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
-                        <form className="space-y-6" action="#" method="POST">
-                            <div>
-                                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Email address
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="email"
+
+                        {response.statusCode !== 0 &&
+                            <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex justify-between relative" role="alert">
+                                <div>
+                                    <strong className="font-bold">Error!&nbsp;</strong>
+                                    <span className="block sm:inline">{response.errorMessage}</span>
+                                </div>
+                                <div className="font-bold cursor-pointer" onClick={() => setResponse({
+                                    ...response,
+                                    statusCode: 0
+                                })}>x</div>
+                            </div>
+                        }
+                        <Formik
+                            initialValues={initialValues}
+                            validationSchema={validationSchema}
+                            onSubmit={handleRegister}
+                        >
+                            <Form className="space-y-6" >
+                                <div>
+                                    <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+                                        Email address
+                                    </label>
+                                    <div className="mt-2">
+                                        <Field
+                                            id="email"
+                                            name="email"
+                                            type="text"
+                                            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
+                                        />
+                                    </div>
+                                    <ErrorMessage
                                         name="email"
-                                        type="email"
-                                        autoComplete="email"
-                                        required
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
+                                        component="div"
+                                        className="text-red-600 text-sm mt-1"
                                     />
                                 </div>
-                            </div>
 
-                            <div>
-                                <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                                    username
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="username"
+                                <div>
+                                    <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
+                                        username
+                                    </label>
+                                    <div className="mt-2">
+                                        <Field
+                                            id="username"
+                                            name="username"
+                                            type="username"
+                                            autoComplete="username"
+                                            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
+                                        />
+                                    </div>
+                                    <ErrorMessage
                                         name="username"
-                                        type="username"
-                                        autoComplete="username"
-                                        required
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
+                                        component="div"
+                                        className="text-red-600 text-sm mt-1"
                                     />
                                 </div>
-                            </div>
 
-                            <div>
-                                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                                    Password
-                                </label>
-                                <div className="mt-2">
-                                    <input
-                                        id="password"
+                                <div>
+                                    <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                                        Password
+                                    </label>
+                                    <div className="mt-2">
+                                        <Field
+                                            id="password"
+                                            name="password"
+                                            type="password"
+                                            autoComplete="current-password"
+                                            className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
+                                        />
+                                    </div>
+                                    <ErrorMessage
                                         name="password"
-                                        type="password"
-                                        autoComplete="current-password"
-                                        required
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6"
+                                        component="div"
+                                        className="text-red-600 text-sm mt-1"
                                     />
                                 </div>
-                            </div>
 
-                            <div>
-                                <button
-                                    type="submit"
-                                    className="flex w-full justify-center rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                                >
-                                    Register
-                                </button>
-                            </div>
-                        </form>
+                                <div>
+                                    <button
+                                        type="submit"
+                                        className="flex w-full justify-center rounded-md bg-red-600 px-3 p-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                                    >
+                                        Register
+                                    </button>
+                                </div>
+                            </Form>
+                        </Formik>
                     </div>
                     <p className="mt-10 text-center text-sm text-gray-500">
                         Already have account?{' '}
