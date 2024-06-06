@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@egoist/tailwindcss-icons": "^1.8.0",
+    "@iconify-json/ri": "^1.1.20",
     "axios": "^1.7.2",
     "classnames": "^2.5.1",
     "formik": "^2.4.6",

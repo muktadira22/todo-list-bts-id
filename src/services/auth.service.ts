@@ -1,7 +1,7 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import IUser from "../types/user.type";
-
-const API_URL = "http://94.74.86.174:8080/api/";
+import { IResponse } from "../types/http.type";
+import { API_URL } from "../const";
 
 export const register = ({username, email, password} : IUser) => {
   return axios.post(API_URL + "register", {
@@ -17,9 +17,12 @@ export const login = ({username, password} : IUser) => {
       username,
       password,
     })
-    .then((response) => {
-      if (response.data.accessToken) {
-        localStorage.setItem("user", JSON.stringify(response.data));
+    .then((response: AxiosResponse<IResponse<{token:string}>>) => {
+      if (response.data.data?.token) {
+        localStorage.setItem("user", JSON.stringify({
+            username,
+            token: response.data.data.token,
+        }));
       }
 
       return response.data;
@@ -28,11 +31,4 @@ export const login = ({username, password} : IUser) => {
 
 export const logout = () => {
   localStorage.removeItem("user");
-};
-
-export const getCurrentUser = () => {
-  const userStr = localStorage.getItem("user");
-  if (userStr) return JSON.parse(userStr);
-
-  return null;
 };

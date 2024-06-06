@@ -37,7 +37,6 @@ function Login() {
         login({username, password}).then(
           () => {
             navigate("/");
-            window.location.reload();
           },
           (error) => {
             const res: IResponse = error.response.data
